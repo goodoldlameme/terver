@@ -4,22 +4,11 @@ from math import gcd, pow, sqrt
 def lcm(a, b):
     return a * b / gcd(a, b)
 
-
-def multiply_random(xi, eta):
+def make_random(xi, eta, func):
     result = {}
     for k, v in xi.items():
         for k1, v1 in eta.items():
-            if k * k1 in result.keys():
-                result[k * k1] += v * v1
-            else:
-                result[k * k1] = v * v1
-    return result
-
-def make_theta(xi, eta):
-    result = {}
-    for k, v in xi.items():
-        for k1, v1 in eta.items():
-            new_key = lcm(k, k1)
+            new_key = func(k, k1)
             if new_key in result.keys():
                 result[new_key] += v * v1
             else:
@@ -57,21 +46,36 @@ def compute_middle(random_var: dict):
         m_up = compute_less_more(keys[keys.index(key):], random_var)
     return max(m_up, m_down)
 
+def compute_covariance(xi, eta):
+    return compute_average(make_random(xi, eta, lambda x, y: x * y)) - compute_average(xi)*compute_average(eta)
+
+def compute_correlation(xi, eta):
+    return compute_covariance(xi, eta)/sqrt(compute_variance(xi)*compute_variance(eta))
+
 
 xi = {1: 1 / 6, 2: 1 / 6, 3: 1 / 6, 4: 1 / 6, 5: 1 / 6, 6: 1 / 6}
 
 eta = {1: 1 / 12, 2: 1 / 12, 3: 1 / 3, 4: 1 / 3, 5: 1 / 12, 6: 1 / 12}
 
-# lcm(xi+2, eta*xi)
-
 xi_plus_two = {k + 2: v for k, v in xi.items()}
 
-eta_multiply_xi = multiply_random(xi, eta)
+eta_multiply_xi = make_random(xi, eta, lambda x, y: x*y)
 
-theta = make_theta(xi_plus_two, eta_multiply_xi)
+xi_pow_two = {k**2: v for k, v in xi.items()}
 
-theta_sigma = sqrt(compute_variance(theta))
+three_eta = {3*k: v for k, v in eta.items()}
 
-theta_middle = compute_middle(theta)
+theta_ft = make_random(xi_pow_two, three_eta, gcd)
 
-print(f"Среднеквадратичное отклонение: {theta_sigma}\nМедиана: {theta_middle}")
+theta_kn = make_random(xi_plus_two, eta_multiply_xi, lcm)
+
+theta_kn_sigma = sqrt(compute_variance(theta_kn))
+
+theta_kn_middle = compute_middle(theta_kn)
+
+covariance = compute_covariance(theta_kn, theta_ft)
+
+correlation = compute_correlation(theta_ft, theta_kn)
+
+print(f"Среднеквадратичное отклонение: {theta_kn_sigma}\nМедиана: {theta_kn_middle}\nКовариация: {covariance}\n"
+      f"Корреляция: {correlation}")
