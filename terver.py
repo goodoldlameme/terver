@@ -18,25 +18,25 @@ def make_random(xi, eta, func):
     return result
 
 
-def compute_average(random_var: dict, _pow: int = 1):
+def compute_average(random_var, _pow = 1):
     result = 0
     for k, v in random_var.items():
         result += pow(k, _pow) * v
     return result
 
 
-def compute_variance(random_var: dict):
+def compute_variance(random_var):
     return compute_average(random_var, 2) - compute_average(random_var)**2
 
 
-def compute_less_more(keys: list, random_var: dict):
+def compute_less_more(keys, random_var):
     p = 0
     for key in keys:
         p += random_var[key]
         if p > 0.5 or p == 0.5: return key
 
 
-def compute_middle(random_var: dict) -> float:
+def compute_middle(random_var):
     keys = sorted(random_var.keys())
     m_down = None
     m_up = None
@@ -50,21 +50,22 @@ def compute_middle(random_var: dict) -> float:
     return max(m_up, m_down)
 
 
-def compute_covariance(xi, eta) -> float:
+def compute_covariance(xi, eta):
     return compute_average(make_random(xi, eta, lambda x, y: x * y)) - compute_average(xi)*compute_average(eta)
 
 
-def compute_correlation(xi, eta) -> float:
+def compute_correlation(xi, eta):
     return compute_covariance(xi, eta)/sqrt(compute_variance(xi)*compute_variance(eta))
 
 
-def compute_entropy(xi_keys: list, eta_keys: list, xi_eta: dict):
+def compute_entropy(xi_keys, eta_keys, xi_eta):
     result = 0
     for xi_i in xi_keys:
         for eta_i in eta_keys:
             p =  xi_eta.get((xi_i, eta_i))
             result -= p*log2(p)
     return result
+
 
 if __name__ == '__main__':
     xi = {1: f(1, 6), 2: f(1, 6), 3: f(1, 6), 4: f(1, 6), 5: f(1, 6), 6: f(1, 6)}
