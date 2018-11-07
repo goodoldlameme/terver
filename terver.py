@@ -1,4 +1,4 @@
-from math import gcd, pow, sqrt
+from math import gcd, pow, sqrt, log2, isclose
 
 
 def lcm(a, b):
@@ -52,30 +52,40 @@ def compute_covariance(xi, eta):
 def compute_correlation(xi, eta):
     return compute_covariance(xi, eta)/sqrt(compute_variance(xi)*compute_variance(eta))
 
+def compute_entropy(xi_keys: list, eta_keys: list, xi_eta: dict):
+    result = 0
+    for xi_i in xi_keys:
+        for eta_i in eta_keys:
+            p =  xi_eta.get((xi_i, eta_i))
+            result -= p*log2(p)
+    return result
 
-xi = {1: 1 / 6, 2: 1 / 6, 3: 1 / 6, 4: 1 / 6, 5: 1 / 6, 6: 1 / 6}
+if __name__ == '__main__':
+    xi = {1: 1 / 6, 2: 1 / 6, 3: 1 / 6, 4: 1 / 6, 5: 1 / 6, 6: 1 / 6}
 
-eta = {1: 1 / 12, 2: 1 / 12, 3: 1 / 3, 4: 1 / 3, 5: 1 / 12, 6: 1 / 12}
+    eta = {1: 1 / 12, 2: 1 / 12, 3: 1 / 3, 4: 1 / 3, 5: 1 / 12, 6: 1 / 12}
 
-xi_plus_two = {k + 2: v for k, v in xi.items()}
+    theta_ft = make_random(xi, eta, lambda x, y: gcd(x**2, 3*y))
 
-eta_multiply_xi = make_random(xi, eta, lambda x, y: x*y)
+    theta_kn = make_random(xi, eta, lambda x, y: lcm(x + 2, x*y))
 
-xi_pow_two = {k**2: v for k, v in xi.items()}
+    print(f"Равны ли суммы вероятностей одному у получившихся ДСВ?\n "
+          f"ФТ: {isclose(sum(theta_ft.values()), 1, rel_tol=1e-10)}\n "
+          f"КН: {isclose(sum(theta_kn.values()), 1, rel_tol=1e-10)}")
 
-three_eta = {3*k: v for k, v in eta.items()}
+    theta_kn_sigma = sqrt(compute_variance(theta_kn))
 
-theta_ft = make_random(xi_pow_two, three_eta, gcd)
+    theta_kn_middle = compute_middle(theta_kn)
 
-theta_kn = make_random(xi_plus_two, eta_multiply_xi, lcm)
+    covariance = compute_covariance(theta_kn, theta_ft)
 
-theta_kn_sigma = sqrt(compute_variance(theta_kn))
+    correlation = compute_correlation(theta_ft, theta_kn)
 
-theta_kn_middle = compute_middle(theta_kn)
+    print(f"Среднеквадратичное отклонение: {theta_kn_sigma}\nМедиана: {theta_kn_middle}\nКовариация: {covariance}\n"
+          f"Корреляция: {correlation}")
 
-covariance = compute_covariance(theta_kn, theta_ft)
-
-correlation = compute_correlation(theta_ft, theta_kn)
-
-print(f"Среднеквадратичное отклонение: {theta_kn_sigma}\nМедиана: {theta_kn_middle}\nКовариация: {covariance}\n"
-      f"Корреляция: {correlation}")
+    #для задачи на 9 неделю
+    xi_eta = {(1, 1) : 3/24, (1, 2) : 2/24, (1, 3) : 5/24,
+              (2, 1) : 2/24, (2, 2) : 2/24, (2, 3) : 3/24,
+              (3, 1) : 3/24, (3, 2) : 2/24, (3, 3) : 2/24}
+    print(f"Для 9 недели\nЭнтропия: {compute_entropy([1,2, 3], [1,2,3], xi_eta)}")
