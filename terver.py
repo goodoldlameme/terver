@@ -87,8 +87,8 @@ if __name__ == '__main__':
 
     print(f"Для 8 недели: №1:\n"
           f"Равны ли суммы вероятностей одному у получившихся распределений?\n "
-          f"ФТ: {isclose(sum(theta_ft.values()), 1, rel_tol=1e-10)}\n "
-          f"КН: {isclose(sum(theta_kn.values()), 1, rel_tol=1e-10)}")
+          f"ФТ: {sum(theta_ft.values()) == 1}\n "
+          f"КН: {sum(theta_kn.values()) == 1}")
 
     print(f"a)\n"
           f"Распределение КН:\n{table_kn}\n"
