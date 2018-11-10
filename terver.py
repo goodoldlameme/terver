@@ -6,7 +6,7 @@ def lcm(a, b):
     return a * b / gcd(a, b)
 
 
-def make_random(xi, eta, func):
+def make_random_var(xi, eta, func):
     result = {}
     for k, v in xi.items():
         for k1, v1 in eta.items():
@@ -50,12 +50,12 @@ def compute_middle(random_var):
     return max(m_up, m_down)
 
 
-def compute_covariance(xi, eta):
-    return compute_average(make_random(xi, eta, lambda x, y: x * y)) - compute_average(xi)*compute_average(eta)
+def compute_covariance(xi, eta, xi_eta):
+    return compute_average(xi_eta) - compute_average(xi)*compute_average(eta)
 
 
-def compute_correlation(xi, eta):
-    return compute_covariance(xi, eta)/sqrt(compute_variance(xi)*compute_variance(eta))
+def compute_correlation(xi, eta, xi_eta):
+    return compute_covariance(xi, eta, xi_eta)/sqrt(compute_variance(xi)*compute_variance(eta))
 
 
 def compute_entropy(xi_keys, eta_keys, xi_eta):
@@ -72,9 +72,9 @@ if __name__ == '__main__':
 
     eta = {1: f(1, 12), 2: f(1, 12), 3: f(1, 3), 4: f(1, 3), 5: f(1, 12), 6: f(1, 12)}
 
-    theta_ft = make_random(xi, eta, lambda x, y: gcd(x**2, 3*y))
+    theta_ft = make_random_var(xi, eta, lambda x, y: gcd(x**2, 3*y))
 
-    theta_kn = make_random(xi, eta, lambda x, y: lcm(x + 2, x*y))
+    theta_kn = make_random_var(xi, eta, lambda x, y: lcm(x + 2, x*y))
 
     table_kn = PrettyTable()
     table_ft = PrettyTable()
@@ -84,6 +84,7 @@ if __name__ == '__main__':
     table_ft.add_column("x", list(map(int, theta_ft.keys())))
     table_ft.add_column("p", list(theta_ft.values()))
 
+    theta_kn_ft = make_random_var(xi, eta, lambda x, y: lcm(x + 2, x*y)*gcd(x**2, 3*y))
 
     print(f"Для 8 недели: №1:\n"
           f"Равны ли суммы вероятностей одному у получившихся распределений?\n "
@@ -96,8 +97,8 @@ if __name__ == '__main__':
           f"Медиана: {compute_middle(theta_kn)}\n"
           f"Распределение ФТ:\n{table_ft}\n"
           f"b)\n"
-          f"Ковариация: {compute_covariance(theta_kn, theta_ft)}\n"
-          f"Корреляция: {compute_correlation(theta_ft, theta_kn)}\n")
+          f"Ковариация: {compute_covariance(theta_kn, theta_ft, theta_kn_ft)}\n"
+          f"Корреляция: {compute_correlation(theta_ft, theta_kn, theta_kn_ft)}\n")
 
 
     #для задачи на 9 неделю
