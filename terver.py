@@ -92,7 +92,7 @@ if __name__ == '__main__':
           f"КН: {sum(theta_kn.values()) == 1}")
 
     print(f"a)\n"
-          f"Распределение КН:\n{table_kn}\n"
+          f"Распределение КН:\n{table_kn} \n"
           f"Среднеквадратичное отклонение: {sqrt(compute_variance(theta_kn))}\n"
           f"Медиана: {compute_middle(theta_kn)}\n"
           f"Распределение ФТ:\n{table_ft}\n"
