@@ -1,6 +1,8 @@
-from math import gcd, pow, sqrt, log2, isclose
+from math import gcd, pow, sqrt, log2
 from prettytable import PrettyTable
 from fractions import Fraction as f
+from matplotlib import pyplot as plt
+import itertools
 
 def lcm(a, b):
     return a * b / gcd(a, b)
@@ -66,8 +68,22 @@ def compute_entropy(xi_keys, eta_keys, xi_eta):
             result -= p*log2(p)
     return result
 
+def show_plot(data):
+    keys = list(data.keys())
+    keys.sort()
+    values = list(itertools.accumulate(data.values()))
+    plt.xlim((0, max(keys)))
+    plt.ylim((0, 1))
+    min_x = 0
+    for i in range(len(keys) - 1):
+        max_x = keys[i + 1] / keys[-1]
+        plt.axhline(xmin=min_x, xmax=max_x, y=values[i])
+        min_x = max_x
+    plt.axhline(xmin=min_x, xmax=1, y=1)
+    plt.show()
 
 if __name__ == '__main__':
+
     xi = {1: f(1, 6), 2: f(1, 6), 3: f(1, 6), 4: f(1, 6), 5: f(1, 6), 6: f(1, 6)}
 
     eta = {1: f(1, 12), 2: f(1, 12), 3: f(1, 3), 4: f(1, 3), 5: f(1, 12), 6: f(1, 12)}
@@ -85,6 +101,12 @@ if __name__ == '__main__':
     table_ft.add_column("p", list(theta_ft.values()))
 
     theta_kn_ft = make_random_var(xi, eta, lambda x, y: lcm(x + 2, x*y)*gcd(x**2, 3*y))
+
+    show_plot(theta_kn)
+    print(f"Для 6 недели: №1:\n"
+          f"Распределение:\n{table_kn}\n"
+          f"Математическое ожидание: {compute_average(theta_kn)}\n"
+          f"Дисперсия: {compute_variance(theta_kn)}\n")
 
     print(f"Для 8 недели: №1:\n"
           f"Равны ли суммы вероятностей одному у получившихся распределений?\n "
